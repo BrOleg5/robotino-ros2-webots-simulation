@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<robot name="robotino_3">
+    <webots>
+        <plugin type="robotino_driver.robotino_driver.RobotinoDriver" />
+    </webots>
+</robot>

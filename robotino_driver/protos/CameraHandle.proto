@@ -1,0 +1,32 @@
+PROTO CameraHandle [
+  field  SFVec3f     translation       0 0 0
+  field  SFRotation  rotation          0 0 1 0
+  field  SFString    name              "Camera Handle"
+  field  SFString    model             ""
+  field  SFString    controller        ""
+  field  MFString    controllerArgs    []
+  field  SFString    window            "<generic>"
+  field  SFString    customData        ""
+  field  SFBool      supervisor        FALSE
+  field  SFBool      synchronization   TRUE
+  field  MFNode      cameraSlot        []
+]
+{
+  Robot {
+    translation IS translation
+    rotation IS rotation
+    controller IS controller
+    controllerArgs IS controllerArgs
+    window IS window
+    customData IS customData
+    supervisor IS supervisor
+    synchronization IS synchronization
+    name IS name
+    model IS model
+    children [
+      DEF EXT_webcam Transform {
+        children IS cameraSlot
+      }
+    ]
+    }
+}

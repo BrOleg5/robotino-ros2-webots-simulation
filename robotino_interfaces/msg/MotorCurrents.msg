@@ -1,0 +1,1 @@
+float32[3] cur # in A
