@@ -1,5 +1,6 @@
 import rclpy
 from std_msgs.msg import Bool
+from std_srvs.srv import Empty
 from geometry_msgs.msg import Twist
 from robotino_interfaces.msg import MotorPositions, MotorVelocities, MotorCurrents, DistanceSensorVoltages
 import numpy as np
@@ -41,27 +42,32 @@ class RobotinoDriver:
         self.__set_point_wheel_vel = [0, 0, 0]
 
         rclpy.init(args=None)
-        self.__node_name = 'robotino_driver'
-        self.__node = rclpy.create_node(self.__node_name)
-        self.__node.create_subscription(Twist, self.__node_name + '/cmd_vel', self.__cmd_vel_callback, 10)
-        self.__node.create_subscription(MotorVelocities, self.__node_name + '/cmd_mot_vel', self.__cmd_mot_vel_callback, 10)
-        self.__bumper_publisher = self.__node.create_publisher(Bool, self.__node_name + '/bumper', 10)
-        self.__mot_pos_publisher = self.__node.create_publisher(MotorPositions, self.__node_name + '/mot_pos', 10)
-        self.__mot_vel_publisher = self.__node.create_publisher(MotorVelocities, self.__node_name + '/mot_vel', 10)
-        self.__mot_cur_publisher = self.__node.create_publisher(MotorCurrents, self.__node_name + '/mot_cur', 10)
-        self.__dist_sens_publisher = self.__node.create_publisher(DistanceSensorVoltages, self.__node_name + '/dist_sens', 10)
+        node_name = 'robotino_driver'
+        self.__node = rclpy.create_node(node_name)
+        self.__node.create_subscription(Twist, node_name + '/cmd_vel', self.__cmd_vel_callback, 10)
+        self.__node.create_subscription(MotorVelocities, node_name + '/cmd_mot_vel', self.__cmd_mot_vel_callback, 10)
+        self.__bumper_publisher = self.__node.create_publisher(Bool, node_name + '/bumper', 10)
+        self.__mot_pos_publisher = self.__node.create_publisher(MotorPositions, node_name + '/mot_pos', 10)
+        self.__mot_vel_publisher = self.__node.create_publisher(MotorVelocities, node_name + '/mot_vel', 10)
+        self.__mot_cur_publisher = self.__node.create_publisher(MotorCurrents, node_name + '/mot_cur', 10)
+        self.__dist_sens_publisher = self.__node.create_publisher(DistanceSensorVoltages, node_name + '/dist_sens', 10)
+        self.__reset_motor_positions_service = self.__node.create_service(Empty, node_name + '/reset_pos', self.__reset_motor_positions_callback)
 
         self.__last_message_time = time.time() # s
 
     def __cmd_vel_callback(self, twist):
         self.__set_point_wheel_vel = self.inverse_kinematics(twist)
-        # self.__node.get_logger().info('Receive robot speed: %f, %f, %f' % (twist.linear.x, twist.linear.y, twist.angular.z))
+        self.__node.get_logger().debug('Receive robot speed: %f, %f, %f' % (twist.linear.x, twist.linear.y, twist.angular.z))
         self.__last_message_time = time.time()
 
     def __cmd_mot_vel_callback(self, motor_velocities):
         self.__set_point_wheel_vel = [vel / self.__gear_ratio for vel in motor_velocities.vel]
-        # self.__node.get_logger().info('Receive motor velocity: %f, %f, %f' % (motor_velocities.vel[0], motor_velocities.vel[1], motor_velocities.vel[2]))
+        self.__node.get_logger().debug('Receive motor velocity: %f, %f, %f' % (motor_velocities.vel[0], motor_velocities.vel[1], motor_velocities.vel[2]))
         self.__last_message_time = time.time()
+
+    def __reset_motor_positions_callback(self, request, response):
+        self.__mot_pos_msg.pos = [0, 0, 0]
+        return response
 
     def step(self):
         rclpy.spin_once(self.__node, timeout_sec=0)
@@ -69,7 +75,7 @@ class RobotinoDriver:
         # Check message timeout
         if((time.time() - self.__last_message_time) > 0.1):
             self.__set_point_wheel_vel = [0, 0, 0]
-        # self.__node.get_logger().info('Wheel velocity: %f, %f, %f' % (self.__set_point_wheel_vel[0], self.__set_point_wheel_vel[1], self.__set_point_wheel_vel[2]))
+        self.__node.get_logger().debug('Wheel velocity: %f, %f, %f' % (self.__set_point_wheel_vel[0], self.__set_point_wheel_vel[1], self.__set_point_wheel_vel[2]))
         for i in range(self.__motor_number):
             self.__motor[i].setVelocity(self.__set_point_wheel_vel[i])
 
