@@ -73,7 +73,7 @@ class RobotinoDriver:
         rclpy.spin_once(self.__node, timeout_sec=0)
 
         # Check message timeout
-        if((time.time() - self.__last_message_time) > 0.1):
+        if((time.time() - self.__last_message_time) > 0.2):
             self.__set_point_wheel_vel = [0, 0, 0]
         self.__node.get_logger().debug('Wheel velocity: %f, %f, %f' % (self.__set_point_wheel_vel[0], self.__set_point_wheel_vel[1], self.__set_point_wheel_vel[2]))
         for i in range(self.__motor_number):

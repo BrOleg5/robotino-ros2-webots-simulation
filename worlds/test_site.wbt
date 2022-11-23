@@ -4,7 +4,6 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/robots/festo/robotino3/protos/Robotino3.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/objects/floors/protos/RectangleArena.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/appearances/protos/Parquetry.proto"
-EXTERNPROTO "../protos/CameraHandle.proto"
 
 WorldInfo {
   contactProperties [
@@ -17,8 +16,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation -0.18217179533249897 0.03755961847629373 0.9825490888730443 2.6921382265938716
-  position 2.5341984796260975 -1.0867600754781865 1.2391571927388563
+  orientation -0.14190672573303995 0.06696352742135829 0.9876124579950463 2.2048944152637673
+  position 7.584257352449968 -7.962363955313473 4.616571611252173
   followType "Mounted Shot"
 }
 TexturedBackground {
@@ -91,17 +90,21 @@ Robotino3 {
     }
   ]
 }
-CameraHandle {
+Robot {
   translation 0 0 3
-  controller "<none>"
-  cameraSlot [
+  children [
     Camera {
       rotation 0 1 0 1.5708
-      name "Camera"
-      model "Logitech C920"
-      fieldOfView 1.15
-      width 1980
+      model "Logitech C910"
+      fieldOfView 1.23
+      width 1920
       height 1080
+      lens Lens {
+      }
+      focus Focus {
+      }
     }
   ]
+  name "camera_handler"
+  controller "<extern>"
 }
